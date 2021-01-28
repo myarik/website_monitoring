@@ -1,0 +1,7 @@
+-r base.txt
+
+ipdb==0.13.4  # https://github.com/gotcha/ipdb
+
+# Testing
+# ---------------------------------------------------
+pytest==6.2.1  # https://github.com/pytest-dev/pytest

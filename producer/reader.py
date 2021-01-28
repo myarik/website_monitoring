@@ -36,7 +36,7 @@ class JSONFileReader:
             return self.validator.check(raw_data)
         except t.DataError as err:
             logger.error("invalid file structure, {}", err.as_dict())
-            raise TypeError("invalid file structure") from t.DataError
+            raise TypeError("invalid file structure")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.file_obj.close()

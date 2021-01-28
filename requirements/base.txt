@@ -1,1 +1,15 @@
-click==7.1.2
+# command line
+# ---------------------------------------------------
+click==7.1.2 # https://click.palletsprojects.com/en/7.x/
+
+# logger
+# ---------------------------------------------------
+loguru==0.5.3 # https://github.com/Delgan/loguru
+
+# validation library
+# ---------------------------------------------------
+trafaret==2.1.0 # https://github.com/popravich/trafaret
+
+# HTTP library
+# ---------------------------------------------------
+requests==2.25.1 # https://requests.readthedocs.io/en/master/

@@ -6,3 +6,4 @@ ipdb==0.13.4  # https://github.com/gotcha/ipdb
 # ---------------------------------------------------
 pytest==6.2.1  # https://github.com/pytest-dev/pytest
 mypy==0.800  # https://github.com/python/mypy
+requests-mock==1.8.0 # https://requests-mock.readthedocs.io/en/latest/index.html

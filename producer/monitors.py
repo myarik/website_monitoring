@@ -39,6 +39,7 @@ class Monitor(ABC):
     """
     Base class for monitoring
     """
+
     @abstractmethod
     async def check(self, *args: Any, **kwargs: Any) -> Response:
         """
@@ -74,7 +75,7 @@ class HttpMonitor(Monitor):
                 status_code=-1,
                 load_time=0,
                 request_time=now(),
-                raw_response=None,
+                body=None,
             )
         except aiohttp.ClientError as err:
             logger.warning("cannot reach {}, {}", url, err)
@@ -84,17 +85,18 @@ class HttpMonitor(Monitor):
                 status_code=-1,
                 load_time=0,
                 request_time=now(),
-                raw_response=None,
+                body=None,
             )
         load_time = (now() - start).total_seconds()
         logger.debug("{} returns {} -- {}", url, response.status, load_time)
+        body = await response.text()
         return Response(
             url,
             error=None if response.ok else f"returns {response.status} response",
             status_code=response.status,
             load_time=load_time,
             request_time=now(),
-            raw_response=response,
+            body=body,
         )
 
 
@@ -117,10 +119,9 @@ class RegexpMonitor(HttpMonitor):
         if not regexp_pattern:
             raise TypeError("cannot find a regexp pattern")
         response = await super().check(session, url=url)
-        if not response.ok or response.raw_response is None:
+        if not response.ok or response.body is None:
             return response
-        html = await response.raw_response.text()
-        if regexp_pattern.search(html) is not None:
+        if regexp_pattern.search(response.body) is not None:
             return response
         response.error = "cannot find a pattern on the page"
         return response
@@ -140,6 +141,7 @@ class MonitorFactory:
     """
     factory for storing providers
     """
+
     def __post_init__(self):
         """
         init a storage

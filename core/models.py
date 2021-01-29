@@ -24,7 +24,7 @@ class Response:
     error: Optional[str] = None
     status_code: Optional[int] = None
     load_time: Optional[float] = None
-    raw_response: Optional[ClientResponse] = None
+    body: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """

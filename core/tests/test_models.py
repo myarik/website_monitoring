@@ -10,7 +10,7 @@ def test_model():
         status_code=200,
         load_time=0.23,
         request_time=request_time,
-        raw_response=None,
+        body=None,
     )
     assert obj.ok
     assert obj.to_dict()["url"] == "https://google.com"
@@ -27,6 +27,6 @@ def test_model():
         status_code=500,
         load_time=0.23,
         request_time=now(),
-        raw_response=None,
+        body=None,
     )
     assert not error_status.ok

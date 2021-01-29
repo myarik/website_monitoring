@@ -1,13 +1,16 @@
 """
 This module represents site inspectors
 """
+import asyncio
 from dataclasses import dataclass, field
 from typing import Dict, Any
 
-import requests
+import aiohttp
+from aiohttp import ClientSession
 from loguru import logger
 
 from core.models import SiteStatus
+from core.utils import now
 
 DEFAULT_TIMEOUT = 10
 DEFAULT_HEADERS = {
@@ -21,29 +24,51 @@ class SimpleInspector:
     """
     SimpleInspector a simple site checker
     """
-    timeout: int = DEFAULT_TIMEOUT
+
     headers: Dict[str, str] = field(default_factory=lambda: DEFAULT_HEADERS)
 
-    def __call__(self, url: str, *args: Any, **kwargs: Any) -> SiteStatus:
+    async def __call__(
+        self, url: str, session: ClientSession, *args: Any, **kwargs: Any
+    ) -> SiteStatus:
+        """
+        Fetching page HTML
+        """
+        start = now()
         try:
-            response = requests.get(url, timeout=self.timeout, headers=self.headers)
-        except requests.exceptions.SSLError:
-            logger.error("{} returns the SSLError", url)
-            return SiteStatus(url, error="ssl_error", status_code=-1, load_time=0)
-        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-            logger.error("{} does not respond", url)
-            return SiteStatus(url, error="timeout", status_code=-1, load_time=0)
-
-        if not response.ok:
+            response = await session.get(url, headers=self.headers)
+        except asyncio.TimeoutError:
+            logger.warning("cannot reach {}, host does not respond (timeout)", url)
             return SiteStatus(
                 url,
-                error=f"error_{response.status_code}",
-                status_code=response.status_code,
-                load_time=response.elapsed.total_seconds(),
+                error="host does not respond (timeout)",
+                status_code=-1,
+                load_time=0,
+                request_time=now(),
             )
+        except aiohttp.ClientError as err:
+            logger.warning("cannot reach {}, {}", url, err)
+            return SiteStatus(
+                url,
+                error=f"{err}",
+                status_code=-1,
+                load_time=0,
+                request_time=now(),
+            )
+        load_time = (now() - start).total_seconds()
+        if not response.ok:
+            logger.warning("{} returns {} -- {}", url, response.status, load_time)
+            return SiteStatus(
+                url,
+                error=f"returns {response.status} response",
+                status_code=response.status,
+                load_time=load_time,
+                request_time=now(),
+            )
+        logger.debug("{} returns {} -- {}", url, response.status, load_time)
         return SiteStatus(
             url,
             error=None,
-            status_code=response.status_code,
-            load_time=response.elapsed.total_seconds(),
+            status_code=response.status,
+            load_time=load_time,
+            request_time=now(),
         )

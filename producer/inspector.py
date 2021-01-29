@@ -9,7 +9,7 @@ import aiohttp
 from aiohttp import ClientSession
 from loguru import logger
 
-from core.models import SiteStatus
+from core.models import Response
 from core.utils import now
 
 DEFAULT_TIMEOUT = 10
@@ -29,7 +29,7 @@ class SimpleInspector:
 
     async def __call__(
         self, url: str, session: ClientSession, *args: Any, **kwargs: Any
-    ) -> SiteStatus:
+    ) -> Response:
         """
         Fetching page HTML
         """
@@ -38,37 +38,55 @@ class SimpleInspector:
             response = await session.get(url, headers=self.headers)
         except asyncio.TimeoutError:
             logger.warning("cannot reach {}, host does not respond (timeout)", url)
-            return SiteStatus(
+            return Response(
                 url,
                 error="host does not respond (timeout)",
                 status_code=-1,
                 load_time=0,
                 request_time=now(),
+                raw_response=None,
             )
         except aiohttp.ClientError as err:
             logger.warning("cannot reach {}, {}", url, err)
-            return SiteStatus(
+            return Response(
                 url,
                 error=f"{err}",
                 status_code=-1,
                 load_time=0,
                 request_time=now(),
+                raw_response=None,
             )
         load_time = (now() - start).total_seconds()
-        if not response.ok:
-            logger.warning("{} returns {} -- {}", url, response.status, load_time)
-            return SiteStatus(
-                url,
-                error=f"returns {response.status} response",
-                status_code=response.status,
-                load_time=load_time,
-                request_time=now(),
-            )
         logger.debug("{} returns {} -- {}", url, response.status, load_time)
-        return SiteStatus(
+        return Response(
             url,
-            error=None,
+            error=None if response.ok else f"returns {response.status} response",
             status_code=response.status,
             load_time=load_time,
             request_time=now(),
+            raw_response=response,
         )
+
+
+class RegexpInspector(SimpleInspector):
+    """
+    RegexpInspector checks an url and finds a regexp pattern on the page
+    """
+
+    async def __call__(
+        self, url: str, session: ClientSession, *args: Any, **kwargs: Any
+    ) -> Response:
+        """
+        Fetching page HTML & check the regexp value
+        """
+        regexp_pattern = kwargs.pop("pattern")
+        if not regexp_pattern:
+            raise TypeError("cannot find a regexp pattern")
+        response = await super().__call__(url, session)
+        if not response.ok:
+            return response
+        html = await response.raw_response.text()
+        if regexp_pattern.search(html) is not None:
+            return response
+        response.error = "cannot find a pattern on the page"
+        return response

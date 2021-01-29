@@ -21,7 +21,7 @@ class ToRegexp(t.String):
     >>> ToRegexp().is_valid("[")
     False
     """
-    def check_and_return(self, value: Any) -> Any:
+    def check_and_return(self, value: Any) -> re.Pattern:
         regexp_pattern = super().check_and_return(value)
         try:
             return re.compile(regexp_pattern)

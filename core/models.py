@@ -10,7 +10,7 @@ from aiohttp.client import ClientResponse
 
 from core.utils import JSONEncoder
 
-SiteStatusObj = TypeVar("SiteStatusObj", bound="SiteStatus")
+ResponseObj = TypeVar("ResponseObj", bound="Response")
 
 
 @dataclass
@@ -52,7 +52,7 @@ class Response:
         return self.error is None
 
     @classmethod
-    def json_load(cls: Type[SiteStatusObj], data: str) -> SiteStatusObj:
+    def json_load(cls: Type[ResponseObj], data: str) -> ResponseObj:
         """
         creates a class from the  JSON formatted ``str``
         """

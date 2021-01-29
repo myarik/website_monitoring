@@ -12,4 +12,8 @@ trafaret==2.1.0 # https://github.com/popravich/trafaret
 
 # HTTP library
 # ---------------------------------------------------
-requests==2.25.1 # https://requests.readthedocs.io/en/master/
+aiohttp==3.7.3  # https://docs.aiohttp.org/en/stable/
+
+# time
+# ---------------------------------------------------
+pytz==2020.5 # https://pypi.org/project/pytz/

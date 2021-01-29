@@ -4,7 +4,7 @@ import re
 import aiohttp
 import pytest
 
-from producer.monitors import HttpMonitor, RegexpMonitor, get_monitor_instance
+from monitoring.monitors import HttpMonitor, RegexpMonitor, get_monitor_instance
 
 
 @pytest.mark.asyncio

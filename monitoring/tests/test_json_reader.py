@@ -4,8 +4,8 @@ from json.decoder import JSONDecodeError
 
 import pytest
 
-from producer.reader import JSONFileReader
-from producer.schema import FILE_SCHEMA
+from monitoring.reader import JSONFileReader
+from monitoring.schema import FILE_SCHEMA
 
 
 def test_read_invalid_file_type(tmpdir):

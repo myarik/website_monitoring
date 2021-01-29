@@ -2,7 +2,7 @@ import re
 
 import pytest
 import trafaret as t
-from producer.schema import ToRegexp, SITE_SCHEMA, FILE_SCHEMA
+from monitoring.schema import ToRegexp, SITE_SCHEMA, FILE_SCHEMA
 
 
 def test_to_regexp_trafaret():

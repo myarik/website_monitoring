@@ -10,9 +10,9 @@ import aiohttp
 from aiohttp import ClientSession
 from loguru import logger
 
-from producer.monitors import get_monitor_instance
-from producer.reader import JSONFileReader
-from producer.schema import FILE_SCHEMA
+from monitoring.monitors import get_monitor_instance
+from monitoring.reader import JSONFileReader
+from monitoring.schema import FILE_SCHEMA
 
 DEFAULT_TIMEOUT = 10
 DEFAULT_CHECK_PERIOD = 5

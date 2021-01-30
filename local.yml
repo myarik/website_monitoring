@@ -1,0 +1,83 @@
+version: '3'
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+
+services:
+  monitoring:
+    build:
+      context: .
+      dockerfile: ./compose/local/Dockerfile.monitoring
+    image: website_monitoring_app
+    container_name: monitoring
+    links:
+      - kafka
+    volumes:
+      - .:/app:z
+    command: /monitoring
+
+  consumer:
+    build:
+      context: .
+      dockerfile: ./compose/local/Dockerfile.consumer
+    image: consumer_app
+    container_name: consumer
+    links:
+      - kafka
+      - postgres
+    volumes:
+      - .:/app:z
+    command: /consumer
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: monitoring
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demopasword
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      KAFKA_HEAP_OPTS: "-Xmx256m -Xms256m"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500k"
+        max-file: "7"
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    expose:
+      - "9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - zookeeper
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500k"
+        max-file: "7"
+
+  postgres:
+    image: postgres:12.3
+    container_name: postgres_monitoring
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data:Z
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: monitoring
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demopasword

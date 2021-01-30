@@ -46,7 +46,7 @@ def monitoring(source_file: str, debug: bool) -> None:
             "validator": <regexp>
         }
     """
-    click.echo("Starting consumer ...")
+    click.echo("Starting monitoring service ...")
     run_monitoring(source_file, debug=debug)
 
 

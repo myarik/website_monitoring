@@ -17,3 +17,7 @@ aiohttp==3.7.3  # https://docs.aiohttp.org/en/stable/
 # time
 # ---------------------------------------------------
 pytz==2020.5 # https://pypi.org/project/pytz/
+
+# Kafka
+# ---------------------------------------------------
+aiokafka==0.7.0 # https://aiokafka.readthedocs.io/en/stable/producer.html

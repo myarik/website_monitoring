@@ -17,9 +17,10 @@ from monitoring.monitors import get_monitor_instance
 from monitoring.producer import run_worker
 from monitoring.reader import JSONFileReader
 from monitoring.schema import FILE_SCHEMA
+from monitoring.writers import KafkaWriter
 
 DEFAULT_TIMEOUT = 10
-DEFAULT_CHECK_PERIOD = 5
+DEFAULT_CHECK_PERIOD = 30
 DEFAULT_WORKERS = 3
 
 
@@ -83,24 +84,39 @@ async def _run_monitoring(
         await asyncio.sleep(period)
 
 
-async def _run_app(sources: List[Dict[str, str]]):
-
+async def _run_app(
+    sources: List[Dict[str, str]], *, kafka_servers: str = "", kafka_topic: str = ""
+):
     queue: asyncio.Queue[Response] = asyncio.Queue(maxsize=512)
+    # setup a kafka producer
+    producer = KafkaWriter(kafka_servers, kafka_topic)
+    await producer.start()
     # create workers to process the queue.
+    worker_tasks = []
     for index in range(DEFAULT_WORKERS):
-        asyncio.create_task(run_worker(index, queue))
+        worker_tasks.append(asyncio.create_task(run_worker(index, queue, producer)))
 
     # create callable objects to check a source
     monitors = [get_monitor_instance(source) for source in sources]
     timeout = aiohttp.ClientTimeout(total=DEFAULT_TIMEOUT)
-    async with aiohttp.ClientSession(timeout=timeout) as session:
-        await _run_monitoring(queue, DEFAULT_CHECK_PERIOD, session, monitors)
+    try:
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            await _run_monitoring(queue, DEFAULT_CHECK_PERIOD, session, monitors)
+    except asyncio.CancelledError:
+        # cancel workers
+        for task in worker_tasks:
+            task.cancel()
+        logger.debug("workers stopped")
+        await producer.stop()
+        logger.debug("kafka producer stopped")
 
 
 def run_app(
     source_file: str,
     *,
     debug: bool = False,
+    kafka_servers: str = "",
+    kafka_topic: str = "",
 ) -> None:
     """Run an app locally"""
     loop = asyncio.get_event_loop()
@@ -119,7 +135,9 @@ def run_app(
 
     logger.debug(raw_data)
     try:
-        main_task = loop.create_task(_run_app(raw_data))
+        main_task = loop.create_task(
+            _run_app(raw_data, kafka_servers=kafka_servers, kafka_topic=kafka_topic)
+        )
         loop.run_until_complete(main_task)
     except KeyboardInterrupt:  # pragma: no cover
         pass

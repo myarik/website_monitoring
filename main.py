@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """See the docstring to main()."""
+import logging
 from pathlib import Path
 
 import click
@@ -33,8 +34,12 @@ def main():
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
     show_default=True,
 )
+@click.option("--kafka_servers", default="kafka:9093")
+@click.option("--kafka_topic", default="monitoring")
 @click.option("--debug", default=False, show_default=True, is_flag=True)
-def monitoring(source_file: str, debug: bool) -> None:
+def monitoring(
+    source_file: str, kafka_servers: str, kafka_topic: str, debug: bool
+) -> None:
     """
     This is a module that implements the site checker and sends data to the Kafka.
 
@@ -47,7 +52,9 @@ def monitoring(source_file: str, debug: bool) -> None:
         }
     """
     click.echo("Starting monitoring service ...")
-    run_monitoring(source_file, debug=debug)
+    run_monitoring(
+        source_file, kafka_servers=kafka_servers, kafka_topic=kafka_topic, debug=debug
+    )
 
 
 main.add_command(monitoring)

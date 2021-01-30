@@ -18,7 +18,7 @@ class BaseWriter(ABC):
     """
 
     @abstractmethod
-    async def write(self, message: str, *args: Any, **kwargs: Any) -> None:
+    async def write(self, message: bytes, *args: Any, **kwargs: Any) -> None:
         """
         check a resource
         """
@@ -54,9 +54,9 @@ class KafkaWriter(BaseWriter):
         await self.producer.stop()
         logger.debug("Stopping kafka producer...")
 
-    async def write(self, message: str, *args: Any, **kwargs: Any) -> None:
+    async def write(self, message: bytes, *args: Any, **kwargs: Any) -> None:
         """
         check a resource
         """
-        await self.producer.send_and_wait(self.topic, message)
-        logger.debug("Sent message {} sent", message)
+        await self.producer.send_and_wait("monitoring", message)
+        logger.debug("Sending event: {}", message)

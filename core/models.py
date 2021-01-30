@@ -6,8 +6,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TypeVar, Optional, Dict, Any, Type
 
-from aiohttp.client import ClientResponse
-
 from core.utils import JSONEncoder
 
 ResponseObj = TypeVar("ResponseObj", bound="Response")
@@ -58,3 +56,6 @@ class Response:
         """
         data = json.loads(data)
         return cls(**data)
+
+    def serialize(self):
+        return bytes(self.json_dumps(), "utf-8")

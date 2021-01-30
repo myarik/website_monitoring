@@ -17,7 +17,8 @@ async def run_worker(
     """
     while True:
         response = await queue.get()
+        logger.debug(f"[{worker_id}] message received")
         # create the message
-        message = response.json_dumps()
+        message = response.serialize()
         await writer.write(message)
         queue.task_done()

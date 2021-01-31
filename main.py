@@ -20,11 +20,19 @@ def main():
 
         monitoring   Start a monitoring service\n
             --source-file filepath to the source file \n
+            --kafka_servers kafka bootstrap_servers \n
+            --kafka_topic kafka topic \n
+            --kafka_ssl_cafile CA certificate \n
+            --kafka_ssl_certfile access certificate \n
+            --kafka_ssl_keyfile access key \n
             --debug run application in the debug mode \n
 
         consumer Service for storing monitoring data \n
             --kafka_servers kafka bootstrap_servers \n
             --kafka_topic kafka topic \n
+            --kafka_ssl_cafile CA certificate \n
+            --kafka_ssl_certfile access certificate \n
+            --kafka_ssl_keyfile access key \n
             --postgres_host PostgreSQL hostname \n
             --postgres_port PostgreSQL port \n
             --postgres_db PostgreSQL database \n
@@ -56,9 +64,27 @@ def main():
 )
 @click.option("--kafka_servers", default="kafka:9093")
 @click.option("--kafka_topic", default="monitoring")
+@click.option(
+    "--kafka_ssl_cafile",
+    type=click.Path(exists=False, file_okay=True, dir_okay=False),
+)
+@click.option(
+    "--kafka_ssl_certfile",
+    type=click.Path(exists=False, file_okay=True, dir_okay=False),
+)
+@click.option(
+    "--kafka_ssl_keyfile",
+    type=click.Path(exists=False, file_okay=True, dir_okay=False),
+)
 @click.option("--debug", default=False, show_default=True, is_flag=True)
 def monitoring(
-    source_file: str, kafka_servers: str, kafka_topic: str, debug: bool
+    source_file: str,
+    kafka_servers: str,
+    kafka_topic: str,
+    kafka_ssl_cafile: str,
+    kafka_ssl_certfile: str,
+    kafka_ssl_keyfile: str,
+    debug: bool,
 ) -> None:
     """
     Service checks sites and sends result to Kafka
@@ -73,13 +99,31 @@ def monitoring(
     """
     click.echo("Starting monitoring service ...")
     run_monitoring(
-        source_file, kafka_servers=kafka_servers, kafka_topic=kafka_topic, debug=debug
+        source_file,
+        kafka_servers=kafka_servers,
+        kafka_topic=kafka_topic,
+        kafka_ssl_cafile=kafka_ssl_cafile,
+        kafka_ssl_certfile=kafka_ssl_certfile,
+        kafka_ssl_keyfile=kafka_ssl_keyfile,
+        debug=debug,
     )
 
 
 @click.command()
 @click.option("--kafka_servers", default="kafka:9093")
 @click.option("--kafka_topic", default="monitoring")
+@click.option(
+    "--kafka_ssl_cafile",
+    type=click.Path(exists=False, file_okay=True, dir_okay=False),
+)
+@click.option(
+    "--kafka_ssl_certfile",
+    type=click.Path(exists=False, file_okay=True, dir_okay=False),
+)
+@click.option(
+    "--kafka_ssl_keyfile",
+    type=click.Path(exists=False, file_okay=True, dir_okay=False),
+)
 @click.option("--postgres_host", default="postgres")
 @click.option("--postgres_port", default=5432)
 @click.option("--postgres_db", default="monitoring")
@@ -89,6 +133,9 @@ def monitoring(
 def consumer(
     kafka_servers: str,
     kafka_topic: str,
+    kafka_ssl_cafile: str,
+    kafka_ssl_certfile: str,
+    kafka_ssl_keyfile: str,
     postgres_host: str,
     postgres_port: int,
     postgres_db: str,
@@ -103,6 +150,9 @@ def consumer(
     run_consumer(
         kafka_servers=kafka_servers,
         kafka_topic=kafka_topic,
+        kafka_ssl_cafile=kafka_ssl_cafile,
+        kafka_ssl_certfile=kafka_ssl_certfile,
+        kafka_ssl_keyfile=kafka_ssl_keyfile,
         postgres_host=postgres_host,
         postgres_port=postgres_port,
         postgres_db=postgres_db,

@@ -9,6 +9,7 @@ from typing import Set, Any, Optional, Callable
 
 import asyncpg
 from aiokafka import AIOKafkaConsumer
+from aiokafka.helpers import create_ssl_context
 from loguru import logger
 
 from consumer.serializer import KafkaDeserializer, REQUEST_SCHEMA
@@ -46,23 +47,40 @@ async def kafka_consumer(
     kafka_servers: str,
     kafka_topic: str,
     queue: asyncio.Queue[Response],
+    *,
     deserializer: Optional[Callable] = None,
+    kafka_ssl_cafile: str = None,
+    kafka_ssl_certfile: str = None,
+    kafka_ssl_keyfile: str = None,
 ) -> None:
     """
     kafka_consumer reads data from kafka and send it to a queue
     """
     loop = asyncio.get_event_loop()
-
-    consumer = AIOKafkaConsumer(
-        kafka_topic,
-        loop=loop,
-        bootstrap_servers=kafka_servers,
-        group_id="my-group",
-        enable_auto_commit=True,
-        auto_commit_interval_ms=1000,  # Autocommit every second
-        auto_offset_reset="earliest",  # start from beginning
-        value_deserializer=deserializer,
-    )
+    kafka_kwargs = {
+        "loop": loop,
+        "bootstrap_servers": kafka_servers,
+        "client_id": "client-storage",
+        "group_id": "my-group",
+        "enable_auto_commit": True,
+        "auto_commit_interval_ms": 1000,  # Autocommit every second
+        "auto_offset_reset": "earliest",  # start from beginning
+        "value_deserializer": deserializer,
+    }
+    if not kafka_ssl_cafile:
+        consumer = AIOKafkaConsumer(kafka_topic, **kafka_kwargs)
+    else:
+        context = create_ssl_context(
+            cafile=kafka_ssl_cafile,
+            certfile=kafka_ssl_certfile,
+            keyfile=kafka_ssl_keyfile,
+        )
+        consumer = AIOKafkaConsumer(
+            kafka_topic,
+            security_protocol="SSL",
+            ssl_context=context,
+            **kafka_kwargs,
+        )
     await consumer.start()
     try:
         # Consume messages
@@ -118,10 +136,24 @@ async def _run_app(
     postgres_db: str,
     postgres_user: str,
     postgres_password: str,
+    *,
     deserializer: Optional[Callable] = None,
+    kafka_ssl_cafile: str = None,
+    kafka_ssl_certfile: str = None,
+    kafka_ssl_keyfile: str = None,
 ) -> None:
     queue: asyncio.Queue[Response] = asyncio.Queue(maxsize=512)
-    asyncio.create_task(kafka_consumer(kafka_servers, kafka_topic, queue, deserializer))
+    asyncio.create_task(
+        kafka_consumer(
+            kafka_servers,
+            kafka_topic,
+            queue,
+            deserializer=deserializer,
+            kafka_ssl_cafile=kafka_ssl_cafile,
+            kafka_ssl_certfile=kafka_ssl_certfile,
+            kafka_ssl_keyfile=kafka_ssl_keyfile,
+        )
+    )
     async with asyncpg.create_pool(
         host=postgres_host,
         port=postgres_port,
@@ -148,6 +180,9 @@ def run_app(
     postgres_user: str,
     postgres_password: str,
     *,
+    kafka_ssl_cafile: str = None,
+    kafka_ssl_certfile: str = None,
+    kafka_ssl_keyfile: str = None,
     debug: bool = False,
 ) -> None:
     """run the consumer"""
@@ -168,6 +203,9 @@ def run_app(
             _run_app(
                 kafka_servers=kafka_servers,
                 kafka_topic=kafka_topic,
+                kafka_ssl_cafile=kafka_ssl_cafile,
+                kafka_ssl_certfile=kafka_ssl_certfile,
+                kafka_ssl_keyfile=kafka_ssl_keyfile,
                 postgres_host=postgres_host,
                 postgres_port=postgres_port,
                 postgres_db=postgres_db,

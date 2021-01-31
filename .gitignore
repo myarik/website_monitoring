@@ -155,3 +155,8 @@ dmypy.json
 
 # Env
 .local_env
+
+# SSL keys
+ca.pem
+service.cert
+service.key

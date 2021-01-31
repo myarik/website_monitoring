@@ -85,11 +85,23 @@ async def _run_monitoring(
 
 
 async def _run_app(
-    sources: List[Dict[str, str]], *, kafka_servers: str = "", kafka_topic: str = ""
+    sources: List[Dict[str, str]],
+    kafka_servers: str,
+    kafka_topic: str,
+    *,
+    kafka_ssl_cafile: str = None,
+    kafka_ssl_certfile: str = None,
+    kafka_ssl_keyfile: str = None,
 ):
     queue: asyncio.Queue[Response] = asyncio.Queue(maxsize=512)
     # setup a kafka producer
-    producer = KafkaWriter(kafka_servers, kafka_topic)
+    producer = KafkaWriter(
+        kafka_servers,
+        kafka_topic,
+        kafka_ssl_cafile=kafka_ssl_cafile,
+        kafka_ssl_certfile=kafka_ssl_certfile,
+        kafka_ssl_keyfile=kafka_ssl_keyfile,
+    )
     await producer.start()
     # create workers to process the queue.
     worker_tasks = []
@@ -113,10 +125,13 @@ async def _run_app(
 
 def run_app(
     source_file: str,
+    kafka_servers: str,
+    kafka_topic: str,
     *,
+    kafka_ssl_cafile: str = None,
+    kafka_ssl_certfile: str = None,
+    kafka_ssl_keyfile: str = None,
     debug: bool = False,
-    kafka_servers: str = "",
-    kafka_topic: str = "",
 ) -> None:
     """Run an app locally"""
     loop = asyncio.get_event_loop()
@@ -136,7 +151,14 @@ def run_app(
     logger.debug(raw_data)
     try:
         main_task = loop.create_task(
-            _run_app(raw_data, kafka_servers=kafka_servers, kafka_topic=kafka_topic)
+            _run_app(
+                raw_data,
+                kafka_servers=kafka_servers,
+                kafka_topic=kafka_topic,
+                kafka_ssl_cafile=kafka_ssl_cafile,
+                kafka_ssl_certfile=kafka_ssl_certfile,
+                kafka_ssl_keyfile=kafka_ssl_keyfile,
+            )
         )
         loop.run_until_complete(main_task)
     except KeyboardInterrupt:  # pragma: no cover

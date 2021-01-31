@@ -8,5 +8,5 @@ pytest==6.2.1  # https://github.com/pytest-dev/pytest
 mypy==0.800  # https://github.com/python/mypy
 pytest-aioresponses==0.1.0 # https://pypi.org/project/pytest-aioresponses/
 pytest-asyncio==0.14.0  #https://pypi.org/project/pytest-asyncio/
+pytest-cov==2.11.1  #https://pypi.org/project/pytest-cov/
 
-requests-mock==1.8.0 # https://requests-mock.readthedocs.io/en/latest/index.html

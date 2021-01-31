@@ -34,7 +34,7 @@ services:
       POSTGRES_PORT: 5432
       POSTGRES_DB: monitoring
       POSTGRES_USER: demo
-      POSTGRES_PASSWORD: demopasword
+      POSTGRES_PASSWORD: demopassword
 
   zookeeper:
     image: wurstmeister/zookeeper
@@ -80,4 +80,4 @@ services:
       POSTGRES_PORT: 5432
       POSTGRES_DB: monitoring
       POSTGRES_USER: demo
-      POSTGRES_PASSWORD: demopasword
+      POSTGRES_PASSWORD: demopassword

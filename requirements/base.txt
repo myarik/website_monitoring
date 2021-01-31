@@ -21,3 +21,7 @@ pytz==2020.5 # https://pypi.org/project/pytz/
 # Kafka
 # ---------------------------------------------------
 aiokafka==0.7.0 # https://aiokafka.readthedocs.io/en/stable/producer.html
+
+# PostgreSQL
+# ---------------------------------------------------
+asyncpg==0.21.0

@@ -17,9 +17,6 @@ def test_model():
     assert obj.to_dict()["load_time"] == 0.23
 
     assert isinstance(obj.json_dumps(), str)
-    obj2 = Response.json_load(obj.json_dumps())
-    assert obj2.url == "https://google.com"
-    assert obj2.request_time[:19] == request_time.isoformat()[:19]
 
     error_status = Response(
         url="https://google.com",

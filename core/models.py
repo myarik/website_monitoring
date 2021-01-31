@@ -4,7 +4,7 @@ This module represents a site status
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TypeVar, Optional, Dict, Any, Type
+from typing import TypeVar, Optional, Dict, Any
 
 from core.utils import JSONEncoder
 
@@ -48,14 +48,6 @@ class Response:
         returns is_alive status
         """
         return self.error is None
-
-    @classmethod
-    def json_load(cls: Type[ResponseObj], data: str) -> ResponseObj:
-        """
-        creates a class from the  JSON formatted ``str``
-        """
-        data = json.loads(data)
-        return cls(**data)
 
     def serialize(self):
         return bytes(self.json_dumps(), "utf-8")

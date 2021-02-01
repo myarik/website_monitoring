@@ -1,6 +1,6 @@
 # Website Monitoring Application
 
-This repository contains the source code for a simple monitoring application. The code
+This repository contains the source code for the monitoring application. The code
 is written on Python and uses Asyncio.
 
 ## Application schema

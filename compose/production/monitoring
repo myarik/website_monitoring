@@ -6,6 +6,6 @@ set -o nounset
 
 python main.py monitoring \
   --kafka_servers ${KAFKA_HOST} \
-  --kafka_ssl_cafile=ca.pem \
-  --kafka_ssl_certfile=service.cert \
-  --kafka_ssl_keyfile=service.key
+  --kafka_ssl_cafile=${KAFKA_SSL_CAFILE} \
+  --kafka_ssl_certfile=${KAFKA_SSL_CERTFILE} \
+  --kafka_ssl_keyfile=${KAFKA_SSL_KEYFILE}

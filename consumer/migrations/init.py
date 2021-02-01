@@ -2,9 +2,9 @@
 Create a monitoring table
 """
 import asyncio
+
 import asyncpg
 from loguru import logger
-
 
 CREATE_MONITORING_TABLE = """
     CREATE TABLE IF NOT EXISTS monitoring(
@@ -23,13 +23,27 @@ CREATE_SIMPLE_INDEX = """
 """
 
 
-async def main(host: str, port: int, database: str, user: str, password: str):
+async def main(
+    host: str, port: int, database: str, user: str, password: str, ssl: bool
+):
     """
     create a table
     """
-    connection = await asyncpg.connect(
-        host=host, port=port, user=user, database=database, password=password
-    )
+    pg_connection_params = {
+        "host": host,
+        "port": port,
+        "user": user,
+        "database": database,
+        "password": password,
+    }
+
+    if ssl:
+        ctx = ssl.create_default_context(cafile="")
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        pg_connection_params["ssl"] = ctx
+
+    connection = await asyncpg.connect(**pg_connection_params)
     statements = [CREATE_MONITORING_TABLE, CREATE_SIMPLE_INDEX]
 
     logger.info("Creating the product database...")

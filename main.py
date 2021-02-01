@@ -129,6 +129,7 @@ def monitoring(
 @click.option("--postgres_db", default="monitoring")
 @click.option("--postgres_user", default="demo")
 @click.option("--postgres_password", default="demopassword")
+@click.option("--postgres_ssl", default=False, show_default=True, is_flag=True)
 @click.option("--debug", default=False, show_default=True, is_flag=True)
 def consumer(
     kafka_servers: str,
@@ -141,6 +142,7 @@ def consumer(
     postgres_db: str,
     postgres_user: str,
     postgres_password: str,
+    postgres_ssl: bool,
     debug: bool,
 ) -> None:
     """
@@ -158,6 +160,7 @@ def consumer(
         postgres_db=postgres_db,
         postgres_user=postgres_user,
         postgres_password=postgres_password,
+        postgres_ssl=postgres_ssl,
         debug=debug,
     )
 
@@ -168,19 +171,26 @@ def consumer(
 @click.option("--postgres_db", default="monitoring")
 @click.option("--postgres_user", default="demo")
 @click.option("--postgres_password", default="demopassword")
+@click.option("--postgres_ssl", default=False, show_default=True, is_flag=True)
 def init_migration(
     postgres_host: str,
     postgres_port: int,
     postgres_db: str,
     postgres_user: str,
     postgres_password: str,
+    postgres_ssl: bool,
 ) -> None:
     """
     runs init migration
     """
     click.echo("runs a migration ...")
     run_migration(
-        postgres_host, postgres_port, postgres_db, postgres_user, postgres_password
+        postgres_host,
+        postgres_port,
+        postgres_db,
+        postgres_user,
+        postgres_password,
+        postgres_ssl,
     )
 
 

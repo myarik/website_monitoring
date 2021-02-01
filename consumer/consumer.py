@@ -4,6 +4,7 @@ Module for reading data from Kafka and write them to the PostgreSQL
 from __future__ import annotations
 
 import asyncio
+import ssl
 import sys
 from typing import Set, Any, Optional, Callable
 
@@ -138,6 +139,7 @@ async def _run_app(
     postgres_password: str,
     *,
     deserializer: Optional[Callable] = None,
+    postgres_ssl: bool = False,
     kafka_ssl_cafile: str = None,
     kafka_ssl_certfile: str = None,
     kafka_ssl_keyfile: str = None,
@@ -154,15 +156,22 @@ async def _run_app(
             kafka_ssl_keyfile=kafka_ssl_keyfile,
         )
     )
-    async with asyncpg.create_pool(
-        host=postgres_host,
-        port=postgres_port,
-        user=postgres_user,
-        password=postgres_password,
-        database=postgres_db,
-        min_size=DEFAULT_POOL_SIZE,
-        max_size=DEFAULT_POOL_SIZE,
-    ) as pool:
+    pg_connection_params = {
+        "host": postgres_host,
+        "port": postgres_port,
+        "user": postgres_user,
+        "database": postgres_db,
+        "password": postgres_password,
+        "min_size": DEFAULT_POOL_SIZE,
+        "max_size": DEFAULT_POOL_SIZE,
+    }
+    if postgres_ssl:
+        ctx = ssl.create_default_context(cafile="")
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        pg_connection_params["ssl"] = ctx
+
+    async with asyncpg.create_pool(**pg_connection_params) as pool:
         worker_tasks = [
             asyncio.create_task(run_worker(index, queue, pool))
             for index in range(DEFAULT_DB_WORKERS)
@@ -180,6 +189,7 @@ def run_app(
     postgres_user: str,
     postgres_password: str,
     *,
+    postgres_ssl: bool = False,
     kafka_ssl_cafile: str = None,
     kafka_ssl_certfile: str = None,
     kafka_ssl_keyfile: str = None,
@@ -211,6 +221,7 @@ def run_app(
                 postgres_db=postgres_db,
                 postgres_user=postgres_user,
                 postgres_password=postgres_password,
+                postgres_ssl=postgres_ssl,
                 deserializer=deserializer,
             )
         )

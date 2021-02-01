@@ -13,6 +13,7 @@ The project uses the following packages:
 
 - ``click`` - the command line framework
 - ``loguru`` - the library for logging
+- ``trafaret`` -  the library for validation
 - ``aiohttp`` - the asynchronous HTTP client
 - ``aiokafka`` - the high-level, asynchronous library for workgin with kafka
 - ``asyncpg`` - the database interface library designed specifically for PostgreSQL and

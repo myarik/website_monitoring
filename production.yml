@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  monitoring:
+    build:
+      context: .
+      dockerfile: ./compose/production/Dockerfile.monitoring
+    image: monitoring_producer
+    container_name: monitoring_producer
+    env_file:
+      - ./.env
+    command: /monitoring
+
+  consumer:
+    build:
+      context: .
+      dockerfile: ./compose/production/Dockerfile.consumer
+    image: monitoring_consumer
+    container_name: monitoring_consumer
+    env_file:
+      - ./.env
+    command: /consumer

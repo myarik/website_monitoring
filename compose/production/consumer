@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+python main.py consumer \
+  --kafka_servers ${KAFKA_HOST} \
+  --kafka_ssl_cafile=ca.pem \
+  --kafka_ssl_certfile=service.cert \
+  --kafka_ssl_keyfile=service.key \
+  --postgres_host ${POSTGRES_HOST} \
+  --postgres_port ${POSTGRES_PORT} \
+  --postgres_db ${POSTGRES_DB} \
+  --postgres_user ${POSTGRES_USER} \
+  --postgres_password ${POSTGRES_PASSWORD} \
+  --postgres_ssl

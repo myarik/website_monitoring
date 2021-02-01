@@ -9,8 +9,8 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/Dockerfile.monitoring
-    image: website_monitoring_app
-    container_name: monitoring
+    image: dev-monitoring_producer
+    container_name: dev-monitoring_producer
     links:
       - kafka
     volumes:
@@ -21,8 +21,8 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/Dockerfile.consumer
-    image: consumer_app
-    container_name: consumer
+    image: dev-monitoring-consumer
+    container_name: dev-monitoring-consumer
     links:
       - kafka
       - postgres

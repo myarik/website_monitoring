@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+python main.py monitoring \
+  --kafka_servers ${KAFKA_HOST} \
+  --kafka_ssl_cafile=ca.pem \
+  --kafka_ssl_certfile=service.cert \
+  --kafka_ssl_keyfile=service.key

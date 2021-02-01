@@ -20,7 +20,7 @@ from monitoring.schema import FILE_SCHEMA
 from monitoring.writers import KafkaWriter
 
 DEFAULT_TIMEOUT = 10
-DEFAULT_CHECK_PERIOD = 30
+DEFAULT_CHECK_PERIOD = 60
 DEFAULT_WORKERS = 3
 
 
@@ -146,7 +146,10 @@ def run_app(
     )
 
     with JSONFileReader(source_file, FILE_SCHEMA) as r:
-        raw_data = r.read()
+        try:
+            raw_data = r.read()
+        except TypeError:
+            return
 
     logger.debug(raw_data)
     try:

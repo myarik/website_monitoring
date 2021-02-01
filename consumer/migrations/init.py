@@ -54,8 +54,8 @@ async def main(
     await connection.close()
 
 
-def run(host: str, port: int, database: str, user: str, password: str):
+def run(host: str, port: int, database: str, user: str, password: str, postgres_ssl: bool):
     """
     run a migration
     """
-    asyncio.run(main(host, port, database, user, password))
+    asyncio.run(main(host, port, database, user, password, postgres_ssl))

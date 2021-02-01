@@ -38,6 +38,7 @@ def main():
             --postgres_db PostgreSQL database \n
             --postgres_user PostgreSQL user \n
             --postgres_password PostgreSQL password \n
+            --postgres_ssl use PostgreSQL ssl connection \n
             --debug run application in the debug mode \n
 
         init-migration runs an init migration \n
@@ -46,6 +47,7 @@ def main():
             --postgres_db PostgreSQL database \n
             --postgres_user PostgreSQL user \n
             --postgres_password PostgreSQL password \n
+            --postgres_ssl use PostgreSQL ssl connection \n
 
     Example:\n
         >>> ./main.py monitoring --debug \n

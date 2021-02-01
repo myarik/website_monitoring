@@ -1,0 +1,9 @@
+[
+  {
+    "url": "https://google.com"
+  },
+  {
+    "url": "https://www.python.org/",
+    "regexp_pattern": "Python Software Foundation"
+  }
+]

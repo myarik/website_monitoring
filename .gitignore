@@ -27,6 +27,31 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# CMake
+cmake-build-debug/
+
+# Mongo Explorer plugin:
+.idea/**/mongoSettings.xml
+
+## File-based project format:
+*.iws
+
+## Plugin-specific files:
+
+# IntelliJ
+out/
+
+.idea/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# Cursive Clojure plugin
+.idea/replstate.xml
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -127,3 +152,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Env
+.local_env
+
+# SSL keys
+ca.pem
+service.cert
+service.key
